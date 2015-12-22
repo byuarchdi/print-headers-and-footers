@@ -4,12 +4,13 @@
 	<head>
 		<script src="../node_modules/css-regions-polyfill/bin/css-regions-polyfill.min.js"></script>
 		<script src="../src/print-headers-and-footers.js"></script>
+		<link rel="stylesheet" href="../src/print-headers-and-footers.css">
 	</head>
 	
 	<body>
-		
 		<div class="haf-main-container">
-			
+			<button onclick="PrintHAF.print()">Print</button>
+			Hello
 		</div>
 		
 		
@@ -18,7 +19,14 @@
 				size: 'letter',
 				marginTop: 0,
 				marginBottom: 0,
-				headerTemplate: '<div>Hello</div>'
+				marginLeft: 0,
+				marginRight: 0,
+				headerTemplate: function() {
+					return '<div>HEADER</div>'
+				},
+				footerTemplate: function() {
+					return '<div>FOOTER</div>'
+				}
 			});
 		</script>
 	</body>

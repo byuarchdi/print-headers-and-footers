@@ -1,3 +1,5 @@
+// One inch printed is 96 pixels in all browsers
+
 var PrintHAF = (function() {
 
 	var o = {};
@@ -5,11 +7,17 @@ var PrintHAF = (function() {
 	var headerTemplate = '';
 	var footerTemplate = '';
 	var pageHeight = 0;
+	var pageWidth = 0;
+	var marginLeft = 0;
+	var marginRight = 0;
 	
 	o.init = function(options) {
-		headerTemplate = options.headerTemplate;
-		footerTemplate = options.footerTemplate;
+		headerTemplate = options.headerTemplate();
+		footerTemplate = options.footerTemplate();
 		pageHeight = calculatePageHeight(calculateRenderedHeight(headerTemplate), calculateRenderedHeight(footerTemplate), options.marginTop, options.marginBottom, options.size);
+		pageWidth = calculatePageWidth(options.size);
+		marginLeft = options.marginLeft;
+		marginRight = options.marginRight;
 	};
 	
 	var calculateRenderedHeight = function(template) {
@@ -27,8 +35,7 @@ var PrintHAF = (function() {
 		return height;
 	};
 	
-	var calculatePageHeight = function(headerheight, footerHeight, marginTop, marginBottom, size) {
-		// One inch printed is 96 pixels in all browsers
+	var calculatePageHeight = function(headerHeight, footerHeight, marginTop, marginBottom, size) {
 		
 		if (size === 'letter') {
 			return 11 * 96 - (headerHeight + footerHeight + marginTop + marginBottom);
@@ -36,224 +43,110 @@ var PrintHAF = (function() {
 		
 	};
 	
+	var calculatePageWidth = function(size) {
+		
+		if (size === 'letter') {
+			return 8.5 * 96;
+		}
+		
+	};
+	
 	o.print = function() {
-		before();
-		prepare();
+		var printContainer = document.createElement('div')
+		var mainContainer = document.querySelector('.haf-main-container');
+		
+		before(mainContainer, printContainer);
+		prepare(mainContainer, printContainer, headerTemplate, footerTemplate, pageHeight, pageWidth, marginLeft, marginRight);
 		window.print();
-		after();
+		after(mainContainer, printContainer);
 	};
 	
-	var before = function() {
+	var before = function(mainContainer, printContainer) {
+		mainContainer.classList.add('haf-hide');
+		document.body.appendChild(printContainer);
+	};
+	
+	var prepare = function(mainContainer, printContainer, headerTemplate, footerTemplate, pageHeight, pageWidth, marginLeft, marginRight) {
+		
+		var prepareForRendering = function(template, pageWidth, marginLeft, marginRight) {
+			
+			var element = document.createElement('div');
+			element.innerHTML = headerTemplate;
+			
+			element.style.boxSizing = 'border-box';
+			element.style.width = pageWidth + 'px';
+			element.style.paddingLeft = marginLeft + 'px';
+			element.style.paddingRight = marginRight + 'px';
+			
+			return element;
+		};
+		
+		prepareRegions(mainContainer, printContainer, prepareForRendering(headerTemplate, pageWidth, marginLeft, marginRight), prepareForRendering(footerTemplate, pageWidth, marginLeft, marginRight));
 		
 	};
 	
-	var prepare = function() {
+	var prepareRegions = function(mainContainer, printContainer, header, footer) {
 		
-	};
-	
-	var after = function() {
+		var createPage = function(header, footer, pageWidth, marginLeft, marginRight) {
+			
+			var createNewPage = function() {
+				var page = document.createElement('div');
+				
+				page.style.width = '8.5in';
+				page.style.height = '11in';
+				//page.classList.add('pdf-column');
+				
+				return page;
+			};
+			
+			var createRegion = function(pageWidth, marginLeft, marginRight) {
+				
+				var region = document.createElement('div');
+				
+				region.style.boxSizing = 'border-box';
+				region.style.height = pageHeight + 'px';
+				region.style.width = pageWidth + 'px';
+				region.style.paddingLeft = marginLeft + 'px';
+				region.style.paddingRight = marginRight + 'px';
+				
+				region.classList.add('haf-region');
+				
+				return region;
+			};
+			
+			var page = createNewPage();
+			
+			page.appendChild(header);
+			page.appendChild(createRegion(pageWidth, marginLeft, marginRight));
+			page.appendChild(footer);
+			
+			return page;
+		};
 		
-	};
-	
-	var preparePageElements = function(part, headerTitle, printContainer) {
-			return new Promise(function(resolve, reject) {
+		var setupOversetListener = function(printContainer, header, footer, pageWidth, marginLeft, marginRight) {
+			document.getNamedFlow('haf-content').addEventListener('regionoversetchange', function(e) {
 				
-				var prepareRegions = function(part, header, footer, isPartA) {
-					
-					var createPage = function(firstTime, part, header, footer, isPartA) {
-						
-						var createPage = function() {
-							var page = document.createElement('div');
-							page.style.width = '8.5in';
-							page.style.height = '11in';
-							page.style.margin = '0 auto';
-							page.classList.add('pdf-column');
-							
-							return page;
-						};
-						
-						var addHeader = function(header, firstTime, isPartA, page) {
-							var newHeader = header.cloneNode(true);
-							
-							if (isPartA && firstTime) {
-								newHeader.innerHTML = '';
-								newHeader.style.padding = 0;
-								newHeader.style.height = '48px';
-							}
-							
-							page.appendChild(newHeader);
-						};
-						
-						var addRegion = function(isPartA, firstTime, part, header, footer, page) {
-							var printPageHeight = 1056 - header.style.height.slice(0, -2) - footer.style.height.slice(0, -2);
-							
-							var region = document.createElement('div');
-							
-							region.style.width = '8.5in';
-							region.style.height = (isPartA && firstTime) ? printPageHeight + 96 + 'px' : printPageHeight + 'px';
-							region.style.boxSizing = 'border-box';
-							
-							part.classList.contains('pdf-part-a') && region.classList.add('pdf-part-a-region');
-							part.classList.contains('pdf-part-b') && region.classList.add('pdf-part-b-region');
-							part.classList.contains('pdf-part-c') && region.classList.add('pdf-part-c-region');
-							part.classList.contains('pdf-part-d') && region.classList.add(part.id + '-region');
-							
-							page.appendChild(region);
-						};
-						
-						var addFooter = function(footer, page) {
-							var newFooter = footer.cloneNode(true);
-							page.appendChild(newFooter);
-						};
-						
-						var run = function() {
-							var page = createPage();
-							
-							addHeader(header, firstTime, isPartA, page);
-							addRegion(isPartA, firstTime, part, header, footer, page);
-							addFooter(footer, page);
-							
-							return page;
-						};
-						
-						return run();
-					};
-					
-					var run = function() {
-						
-						var createFirstPage = function(elementToPrint, printContainer) {
-							elementToPrint.appendChild(createPage(true, part, header, footer, isPartA));
-							printContainer.appendChild(elementToPrint);
-						};
-						
-						var setupOversetListener = function(part, elementToPrint) {
-							
-							var getFlowName = function(part) {
-								
-								if (part.classList.contains('pdf-part-a')) {
-									return 'pdf-part-a-content';
-								}
-								
-								if (part.classList.contains('pdf-part-b')) {
-									return 'pdf-part-b-content';
-								}
-								
-								if (part.classList.contains('pdf-part-c')) {
-									return 'pdf-part-c-content';
-								}
-								
-								if (part.classList.contains('pdf-part-d')) {
-									return part.id + '-content';
-								}
-								
-								throw 'Not a Part A, B, C, or D';
-							};
-							
-							var temp1 = getFlowName(part);
-							var temp2 = ((part.classList[0] === 'pdf-part-d') ? part.classList[1] : part.classList[0]) + '-content';
-							
-							document.getNamedFlow(((part.classList[0] === 'pdf-part-d') ? part.classList[1] : part.classList[0]) + '-content').addEventListener('regionoversetchange', function(e) {
-								
-								if (e.target.overset) {
-									elementToPrint.appendChild(createPage(false, part, header, footer, isPartA));
-									return;
-								}
-								
-								resolve();
-							});
-						};
-						
-						var run = function() {
-							var elementToPrint = document.createElement('div');
-							
-							createFirstPage(elementToPrint, printContainer);
-							setupOversetListener(part, elementToPrint);
-							
-							//adding this class starts the whole regions magic
-							part.classList.add(((part.classList[0] === 'pdf-part-d') ? part.classList[1] : part.classList[0]) + '-content');
-						};
-						
-						run();
-					};
-					
-					run();
-				};
+				if (e.target.overset) {
+					printContainer.appendChild(createPage(header, footer, pageWidth, marginLeft, marginRight));
+					return;
+				}
 				
-				var prepareHeader = function(headerHeight, headerTitle, smithsonianTrinomial, temporarySiteNo) {
-					
-					var headerTemplate = document.getElementById('pdf-header-template').content;
-					var header = document.importNode(headerTemplate, true).querySelector('.temporary-template-id');
-					
-					header.querySelector('.pdf-header-title').innerHTML = headerTitle;
-					
-					header.style.boxSizing = 'border-box';
-					header.style.width = 816 + 'px';
-					header.style.height = headerHeight + 'px';
-					header.style.padding = '.5in';
-					
-					header.querySelector('.pdf-header-smithsonian-trinomial').value = smithsonianTrinomial;
-					header.querySelector('.pdf-header-temporary-site-no').value = temporarySiteNo;
-					
-					return header;
-				};
-				
-				var prepareFooter = function(footerHeight) {
-					var footer = document.createElement('div');
-					
-					footer.style.width = 816 + 'px';
-					footer.style.height = footerHeight + 'px';
-					
-					return footer;
-				};
-				
-				var containsTextToPrint = function(part) {
-					
-					var allPartInputs = Array.prototype.slice.call(part.querySelectorAll('input,textarea'));
-					
-					var i;
-					for (i = 0; i < allPartInputs.length; i++) {
-							
-						var input = allPartInputs[i];
-						
-						if (input.type === 'checkbox') {
-							if (input.checked) {
-								return true;
-							}
-						}
-						else {
-							if (input.value) {
-								return true;
-							}
-						}
-						
-					}
-					
-					return false;
-					
-				};
-				
-				var run = function() {
-				
-					var isPartA = (part.classList.contains('pdf-part-a'));
-					
-					var headerHeight = 144;
-					var footerHeight = 48;
-					
-					var header = prepareHeader(headerHeight, headerTitle, smithsonianTrinomial, temporarySiteNo);
-					var footer = prepareFooter(footerHeight);
-					
-					if (containsTextToPrint(part)) {
-						prepareRegions(part, header, footer, isPartA);
-					}
-					else {
-						resolve();
-					}
-					
-				};
-				
-				run();
 			});
 		};
+		
+		printContainer.appendChild(createPage(header, footer, pageWidth, marginLeft, marginRight));
+		setupOversetListener(printContainer, header, footer, pageWidth, marginLeft, marginRight);
+		
+		//adding this class starts the whole regions magic
+		mainContainer.classList.add('haf-content');
+		
+	};
+	
+	var after = function(mainContainer, printContainer) {
+		printContainer.parentNode.removeChild(printContainer);
+		mainContainer.classList.remove('haf-content');
+		mainContainer.classList.remove('haf-hide');
+	};
 	
 	return o;
 	
