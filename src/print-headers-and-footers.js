@@ -77,6 +77,11 @@ var PrintHAF = (function() {
 				element.innerHTML = template;
 				
 				element.style.boxSizing = 'border-box';
+				
+				document.body.appendChild(element);
+				element.style.height = Math.max(element.clientHeight, element.scrollHeight, element.offsetHeight); //TODO Without this line, why is the height of the template a decimal pixel value? Figure out how to fix that
+				element.parentNode.removeChild(element);
+				
 				element.style.width = regionWidth + 'px';
 				element.style.paddingLeft = marginLeft + 'px';
 				element.style.paddingRight = marginRight + 'px';
@@ -122,9 +127,9 @@ var PrintHAF = (function() {
 				
 				var page = createNewPage();
 				
-				page.appendChild(header);
+				page.appendChild(header.cloneNode(true));
 				page.appendChild(createRegion(regionHeight, regionWidth, marginLeft, marginRight));
-				page.appendChild(footer);
+				page.appendChild(footer.cloneNode(true));
 				
 				return page;
 			};
