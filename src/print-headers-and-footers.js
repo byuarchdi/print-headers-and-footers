@@ -9,46 +9,49 @@ var PrintHAF = (function() {
 	o.init = function(options) {
 		headerTemplate = options.headerTemplate;
 		footerTemplate = options.footerTemplate;
-		pageHeight = calculatePageHeight(calculateRenderedHeight(headerTemplate), calculateRenderedHeight(footerTemplate), options.size, options.marginTop, options.marginBottom);
+		pageHeight = calculatePageHeight(calculateRenderedHeight(headerTemplate), calculateRenderedHeight(footerTemplate), options.marginTop, options.marginBottom, options.size);
 	};
 	
 	var calculateRenderedHeight = function(template) {
-		//TODO Am I sure that this height will be the same as when the header is put into the region, position absolute versus display: block - removed from the flow versus in the flow
+		//TODO Am I sure that this height will be the same as when the template is put into the region, position absolute versus display: block - removed from the flow versus in the flow
 		var element = document.createElement('div');
 		element.innerHTML = template;
 		
-		template.style.visibility = 'hidden';
-		template.style.position = 'absolute';
+		element.style.visibility = 'hidden';
+		element.style.position = 'absolute';
 		
-		document.body.appendChild(template);
+		document.body.appendChild(element);
+		var height = Math.max(element.clientHeight, element.scrollHeight, element.offsetHeight);
+		element.parentNode.removeChild(element);
 		
-		var height = Math.max(template.clientHeight, template.scrollHeight, template.offsetHeight);
-		
-		template.parentNode.removeChild(template);
-		
-		return Math.max(template.clientHeight, template.scrollHeight, template.offsetHeight);
+		return height;
 	};
 	
-	var calculatePageHeight = function(headerheight, size) {
+	var calculatePageHeight = function(headerheight, footerHeight, marginTop, marginBottom, size) {
+		// One inch printed is 96 pixels in all browsers
 		
 		if (size === 'letter') {
-			// One inch printed is 96 pixels in all browsers
-			return 11 * 96 - headerHeight;
-		}
+			return 11 * 96 - (headerHeight + footerHeight + marginTop + marginBottom);
+		}		
 		
 	};
 	
 	o.print = function() {
+		before();
 		prepare();
 		window.print();
-		cleanUp();
+		after();
+	};
+	
+	var before = function() {
+		
 	};
 	
 	var prepare = function() {
 		
 	};
 	
-	var cleanUp = function() {
+	var after = function() {
 		
 	};
 	
