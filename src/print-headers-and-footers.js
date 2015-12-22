@@ -6,16 +6,16 @@ var PrintHAF = (function() {
 	
 	var headerTemplate = '';
 	var footerTemplate = '';
-	var pageHeight = 0;
-	var pageWidth = 0;
+	var regionHeight = 0;
+	var regionWidth = 0;
 	var marginLeft = 0;
 	var marginRight = 0;
 	
 	o.init = function(options) {
 		headerTemplate = options.headerTemplate();
 		footerTemplate = options.footerTemplate();
-		pageHeight = calculatePageHeight(calculateRenderedHeight(headerTemplate), calculateRenderedHeight(footerTemplate), options.marginTop, options.marginBottom, options.size);
-		pageWidth = calculatePageWidth(options.size);
+		regionHeight = calculateRegionHeight(calculateRenderedHeight(headerTemplate), calculateRenderedHeight(footerTemplate), options.marginTop, options.marginBottom, options.size);
+		regionWidth = calculateRegionWidth(options.size);
 		marginLeft = options.marginLeft;
 		marginRight = options.marginRight;
 	};
@@ -35,7 +35,7 @@ var PrintHAF = (function() {
 		return height;
 	};
 	
-	var calculatePageHeight = function(headerHeight, footerHeight, marginTop, marginBottom, size) {
+	var calculateRegionHeight = function(headerHeight, footerHeight, marginTop, marginBottom, size) {
 		
 		if (size === 'letter') {
 			return 11 * 96 - (headerHeight + footerHeight + marginTop + marginBottom);
@@ -43,7 +43,7 @@ var PrintHAF = (function() {
 		
 	};
 	
-	var calculatePageWidth = function(size) {
+	var calculateRegionWidth = function(size) {
 		
 		if (size === 'letter') {
 			return 8.5 * 96;
@@ -52,99 +52,104 @@ var PrintHAF = (function() {
 	};
 	
 	o.print = function() {
-		var printContainer = document.createElement('div')
+		var regionContainer = document.createElement('div')
 		var mainContainer = document.querySelector('.haf-main-container');
+		var printContainer = document.querySelector('.haf-print-container');
 		
-		before(mainContainer, printContainer);
-		prepare(mainContainer, printContainer, headerTemplate, footerTemplate, pageHeight, pageWidth, marginLeft, marginRight);
-		window.print();
-		after(mainContainer, printContainer);
+		before(mainContainer, regionContainer, printContainer);
+		prepare(mainContainer, regionContainer, headerTemplate, footerTemplate, regionHeight, regionWidth, marginLeft, marginRight).then(function() {
+			window.print();
+			after(mainContainer, regionContainer, printContainer);
+		});
 	};
 	
-	var before = function(mainContainer, printContainer) {
+	var before = function(mainContainer, regionContainer, printContainer) {
+		printContainer.classList.add('haf-content');
 		mainContainer.classList.add('haf-hide');
-		document.body.appendChild(printContainer);
+		document.body.appendChild(regionContainer);
 	};
 	
-	var prepare = function(mainContainer, printContainer, headerTemplate, footerTemplate, pageHeight, pageWidth, marginLeft, marginRight) {
-		
-		var prepareForRendering = function(template, pageWidth, marginLeft, marginRight) {
-			
-			var element = document.createElement('div');
-			element.innerHTML = headerTemplate;
-			
-			element.style.boxSizing = 'border-box';
-			element.style.width = pageWidth + 'px';
-			element.style.paddingLeft = marginLeft + 'px';
-			element.style.paddingRight = marginRight + 'px';
-			
-			return element;
-		};
-		
-		prepareRegions(mainContainer, printContainer, prepareForRendering(headerTemplate, pageWidth, marginLeft, marginRight), prepareForRendering(footerTemplate, pageWidth, marginLeft, marginRight));
-		
-	};
-	
-	var prepareRegions = function(mainContainer, printContainer, header, footer) {
-		
-		var createPage = function(header, footer, pageWidth, marginLeft, marginRight) {
-			
-			var createNewPage = function() {
-				var page = document.createElement('div');
+	var prepare = function(mainContainer, regionContainer, headerTemplate, footerTemplate, regionHeight, regionWidth, marginLeft, marginRight) {
+		return new Promise(function(resolve, reject) {
+			var prepareForRendering = function(template, regionWidth, marginLeft, marginRight) {
 				
-				page.style.width = '8.5in';
-				page.style.height = '11in';
-				//page.classList.add('pdf-column');
+				var element = document.createElement('div');
+				element.innerHTML = template;
+				
+				element.style.boxSizing = 'border-box';
+				element.style.width = regionWidth + 'px';
+				element.style.paddingLeft = marginLeft + 'px';
+				element.style.paddingRight = marginRight + 'px';
+				
+				return element;
+			};
+			
+			prepareRegions(mainContainer, regionContainer, prepareForRendering(headerTemplate, regionWidth, marginLeft, marginRight), prepareForRendering(footerTemplate, regionWidth, marginLeft, marginRight), regionHeight, regionWidth).then(function() {
+				resolve();
+			});
+		});
+	};
+	
+	var prepareRegions = function(mainContainer, regionContainer, header, footer, regionHeight, regionWidth) {
+		return new Promise(function(resolve, reject) {
+			var createPage = function(header, footer, regionWidth, marginLeft, marginRight) {
+				
+				var createNewPage = function() {
+					var page = document.createElement('div');
+					
+					//TODO fix this based on the options size passed in by the user
+					page.style.width = '8.5in';
+					page.style.height = '11in';
+					page.classList.add('haf-column');
+					
+					return page;
+				};
+				
+				var createRegion = function(regionHeight, regionWidth, marginLeft, marginRight) {
+					
+					var region = document.createElement('div');
+					
+					region.style.boxSizing = 'border-box';
+					region.style.height = regionHeight + 'px';
+					region.style.width = regionWidth + 'px';
+					region.style.paddingLeft = marginLeft + 'px';
+					region.style.paddingRight = marginRight + 'px';
+					
+					region.classList.add('haf-region');
+					
+					return region;
+				};
+				
+				var page = createNewPage();
+				
+				page.appendChild(header);
+				page.appendChild(createRegion(regionHeight, regionWidth, marginLeft, marginRight));
+				page.appendChild(footer);
 				
 				return page;
 			};
 			
-			var createRegion = function(pageWidth, marginLeft, marginRight) {
-				
-				var region = document.createElement('div');
-				
-				region.style.boxSizing = 'border-box';
-				region.style.height = pageHeight + 'px';
-				region.style.width = pageWidth + 'px';
-				region.style.paddingLeft = marginLeft + 'px';
-				region.style.paddingRight = marginRight + 'px';
-				
-				region.classList.add('haf-region');
-				
-				return region;
+			var setupOversetListener = function(regionContainer, header, footer, regionWidth, marginLeft, marginRight) {
+				document.getNamedFlow('haf-content').addEventListener('regionoversetchange', function(e) {
+					
+					if (e.target.overset) {
+						regionContainer.appendChild(createPage(header, footer, regionWidth, marginLeft, marginRight));
+						return;
+					}
+					
+					resolve();
+				});
 			};
 			
-			var page = createNewPage();
-			
-			page.appendChild(header);
-			page.appendChild(createRegion(pageWidth, marginLeft, marginRight));
-			page.appendChild(footer);
-			
-			return page;
-		};
-		
-		var setupOversetListener = function(printContainer, header, footer, pageWidth, marginLeft, marginRight) {
-			document.getNamedFlow('haf-content').addEventListener('regionoversetchange', function(e) {
-				
-				if (e.target.overset) {
-					printContainer.appendChild(createPage(header, footer, pageWidth, marginLeft, marginRight));
-					return;
-				}
-				
-			});
-		};
-		
-		printContainer.appendChild(createPage(header, footer, pageWidth, marginLeft, marginRight));
-		setupOversetListener(printContainer, header, footer, pageWidth, marginLeft, marginRight);
-		
-		//adding this class starts the whole regions magic
-		mainContainer.classList.add('haf-content');
+			regionContainer.appendChild(createPage(header, footer, regionWidth, marginLeft, marginRight));
+			setupOversetListener(regionContainer, header, footer, regionWidth, marginLeft, marginRight);
+		});
 		
 	};
 	
-	var after = function(mainContainer, printContainer) {
-		printContainer.parentNode.removeChild(printContainer);
-		mainContainer.classList.remove('haf-content');
+	var after = function(mainContainer, regionContainer, printContainer) {
+		regionContainer.parentNode.removeChild(regionContainer);
+		printContainer.classList.remove('haf-content');
 		mainContainer.classList.remove('haf-hide');
 	};
 	

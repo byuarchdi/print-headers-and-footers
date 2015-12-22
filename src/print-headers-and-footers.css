@@ -9,3 +9,8 @@
 .haf-hide {
 	display: none;
 }
+
+.haf-column {
+	display: flex;
+	flex-direction: column;
+}
