@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<script src="../node_modules/css-regions-polyfill/bin/css-regions-polyfill.min.js"></script>
+		<script src="../src/print-headers-and-footers.js"></script>
+	</head>
+	
+	<body>
+		
+		<div class="haf-main-container">
+			
+		</div>
+		
+		
+		<script>
+			PrintHAF.init({
+				size: 'letter',
+				marginTop: 0,
+				marginBottom: 0,
+				headerTemplate: '<div>Hello</div>'
+			});
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "print-headers-and-footers",
+  "version": "0.0.0",
+  "description": "Allows repeating headers and footers to be printed in browsers",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/byuarchdi/print-headers-and-footers.git"
+  },
+  "author": "BYU Archaeological Digital Initiative Development Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/byuarchdi/print-headers-and-footers/issues"
+  },
+  "homepage": "https://github.com/byuarchdi/print-headers-and-footers#readme",
+  "dependencies": {
+    "css-regions-polyfill": "git://github.com/FremyCompany/css-regions-polyfill.git"
+  }
+}
