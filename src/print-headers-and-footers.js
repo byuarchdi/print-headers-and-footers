@@ -13,8 +13,8 @@ var PrintHAF = (function() {
 	var marginLeft = 0;
 	var marginRight = 0;
 	
-	var createHeaderTemplate = function() {};
-	var createFooterTemplate = function() {};
+	var createHeaderTemplate = function() { return document.createElement('div'); };
+	var createFooterTemplate = function() { return document.createElement('div'); };
 	
 	var userBefore = function() {};
 	var userAfter = function() {};
