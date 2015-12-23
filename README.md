@@ -1,4 +1,4 @@
-# print-headers-and-footers
+# Print Headers and Footers
 
 This project was created to fix the problem of printing headers and footers in Chrome. Right now there is a bug in Chrome that does not allow elements with fixed positioning to repeat when printed, thus headers and footers are difficult to print. You can check the status of the bug [here](https://code.google.com/p/chromium/issues/detail?id=303728).
 
