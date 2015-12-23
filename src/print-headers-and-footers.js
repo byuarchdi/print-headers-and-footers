@@ -99,6 +99,7 @@ var PrintHAF = (function() {
 		printContainer.style.visibility = 'visible';
 		
 		regionContainer.style.position = 'absolute';
+		regionContainer.style.zIndex = '5000';
 		regionContainer.style.visibility = 'visible';
 		regionContainer.style.top = '0';
 		regionContainer.style.left = '0';
@@ -131,10 +132,6 @@ var PrintHAF = (function() {
 					
 					element.style.boxSizing = 'border-box';
 					
-					document.body.appendChild(element);
-					element.style.height = Math.max(element.clientHeight, element.scrollHeight, element.offsetHeight) + 'px'; //TODO Without this line, why is the height of the template a decimal pixel value? Figure out how to fix that
-					element.parentNode.removeChild(element);
-					
 					if (templateType === 'header') {
 						element.style.paddingTop = marginTop + 'px';
 					}
@@ -142,6 +139,10 @@ var PrintHAF = (function() {
 					if (templateType === 'footer') {
 						element.style.paddingBottom = marginBottom + 'px';
 					}
+					
+					document.body.appendChild(element);
+					element.style.height = Math.max(element.clientHeight, element.scrollHeight, element.offsetHeight) + 'px'; //TODO Without this line, why is the height of the template a decimal pixel value? Figure out how to fix that
+					element.parentNode.removeChild(element);
 					
 					element.style.width = width + 'px';
 					element.style.paddingLeft = marginLeft + 'px';
@@ -152,11 +153,11 @@ var PrintHAF = (function() {
 				
 				var createRegion = function(preparedHeader, preparedFooter, width, marginLeft, marginRight) {
 					
-					var calculateRegionHeight = function(headerHeight, footerHeight, marginTop, marginBottom, height) {
-						return height - (headerHeight + footerHeight + marginTop + marginBottom);	
+					var calculateRegionHeight = function(height, headerHeight, footerHeight) {
+						return height - (headerHeight + footerHeight);	
 					};
 					
-					var regionHeight = calculateRegionHeight(+preparedHeader.style.height.slice(0, -2), +preparedFooter.style.height.slice(0, -2), marginTop, marginBottom, height);
+					var regionHeight = calculateRegionHeight(height, +preparedHeader.style.height.slice(0, -2), +preparedFooter.style.height.slice(0, -2));
 					
 					var region = document.createElement('div');
 					
