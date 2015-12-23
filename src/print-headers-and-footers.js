@@ -4,6 +4,8 @@ var PrintHAF = (function() {
 
 	var o = {};
 
+	var domID = '';
+
 	var width = 0;
 	var height = 0;
 	var marginTop = 0;
@@ -27,6 +29,8 @@ var PrintHAF = (function() {
 			
 			document.body.appendChild(style);
 		};
+		
+		domID = options.domID;
 			
 		if (options.size) {
 			
@@ -78,7 +82,7 @@ var PrintHAF = (function() {
 	
 	o.print = function() {
 		var regionContainer = document.createElement('div')
-		var printContainer = document.querySelector('.haf-print-container');
+		var printContainer = document.getElementById(domID);
 		
 		before(userBefore, printContainer, regionContainer);
 		prepareRegions(regionContainer, createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height).then(function() {
@@ -89,6 +93,15 @@ var PrintHAF = (function() {
 	
 	var before = function(userBefore, printContainer, regionContainer) {
 		userBefore();
+		
+		document.body.style.visibility = 'hidden';
+		
+		printContainer.style.visibility = 'visible';
+		
+		regionContainer.style.position = 'absolute';
+		regionContainer.style.visibility = 'visible';
+		regionContainer.style.top = '0';
+		regionContainer.style.left = '0';
 		
 		printContainer.classList.add('haf-content');
 		document.body.appendChild(regionContainer);
@@ -193,6 +206,8 @@ var PrintHAF = (function() {
 	var after = function(printContainer, regionContainer, userAfter) {
 		regionContainer.parentNode.removeChild(regionContainer);
 		printContainer.classList.remove('haf-content');
+		
+		document.body.style.visibility = 'visible';
 		
 		userAfter();
 	};

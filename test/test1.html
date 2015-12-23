@@ -9,7 +9,7 @@
 	
 	<body>
 		<button id="print-button" onclick="PrintHAF.print()">Print</button>
-		<div class="haf-print-container">
+		<div id="haf-print-container">
 			
 				Lorem ipsum dolor sit amet, iuvaret perfecto ex nec, cu vix tempor scriptorem. Mei eros saperet mentitum at, tale summo an usu, adhuc temporibus at his. Vis id vidit persius facilis. Vim te quando elaboraret, hinc atqui copiosae no vis. Idque alienum et nam, iriure maiorum mea ea. Quot reprimique scripserit vel at, mea assum tation intellegam in.
 
@@ -213,6 +213,7 @@ Dicta deseruisse et qui, cu duo melius bonorum fabellas, ea omittam detracto def
 		
 		<script>
 			PrintHAF.init({ //TODO should I allow any kind of units?
+				domID: 'haf-print-container',
 				size: 'letter',
 				//width: 96 * 8.5,
 				//height: 96 * 11,
@@ -233,10 +234,10 @@ Dicta deseruisse et qui, cu duo melius bonorum fabellas, ea omittam detracto def
 					return footer;
 				},
 				before: function() {
-					document.getElementById('print-button').style.display = 'none';
+					//document.getElementById('print-button').style.display = 'none';
 				},
 				after: function() {
-					document.getElementById('print-button').style.display = 'block';
+					//document.getElementById('print-button').style.display = 'block';
 				}
 			});
 		</script>
