@@ -90,7 +90,7 @@ var PrintHAF = (function() {
 	
 	var prepareRegions = function(regionContainer, createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height) {
 		return new Promise(function(resolve, reject) {
-			var createPage = function(createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height) {
+			var createPage = function(pageNumber, createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height) {
 				
 				var createNewPage = function(width, height) {
 					var page = document.createElement('div');
@@ -106,9 +106,9 @@ var PrintHAF = (function() {
 					return page;
 				};
 				
-				var prepareTemplate = function(templateType, templateCreator, marginTop, marginBottom, marginLeft, marginRight, width) {
+				var prepareTemplate = function(pageNumber, templateType, templateCreator, marginTop, marginBottom, marginLeft, marginRight, width) {
 					
-					var element = templateCreator();
+					var element = templateCreator(pageNumber);
 					
 					element.style.boxSizing = 'border-box';
 					
@@ -153,8 +153,8 @@ var PrintHAF = (function() {
 				};
 				
 				var page = createNewPage(width, height);
-				var preparedHeader = prepareTemplate('header', createHeaderTemplate, marginTop, marginBottom, marginLeft, marginRight, width);
-				var preparedFooter = prepareTemplate('footer', createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width);
+				var preparedHeader = prepareTemplate(pageNumber, 'header', createHeaderTemplate, marginTop, marginBottom, marginLeft, marginRight, width);
+				var preparedFooter = prepareTemplate(pageNumber, 'footer', createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width);
 				
 				page.appendChild(preparedHeader);
 				page.appendChild(createRegion(preparedHeader, preparedFooter, width, marginLeft, marginRight));
@@ -167,7 +167,8 @@ var PrintHAF = (function() {
 				document.getNamedFlow('haf-content').addEventListener('regionoversetchange', function(e) {
 					
 					if (e.target.overset) {
-						regionContainer.appendChild(createPage(createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height));
+						pageNumber += 1;
+						regionContainer.appendChild(createPage(pageNumber, createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height));
 						return;
 					}
 					
@@ -175,7 +176,9 @@ var PrintHAF = (function() {
 				});
 			};
 			
-			regionContainer.appendChild(createPage(createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height));
+			var pageNumber = 1;
+			
+			regionContainer.appendChild(createPage(pageNumber, createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height));
 			setupOversetListener(regionContainer, createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height);
 		});
 		

@@ -222,15 +222,15 @@ Dicta deseruisse et qui, cu duo melius bonorum fabellas, ea omittam detracto def
 				marginBottom: 0,
 				marginLeft: 0,
 				marginRight: 0,
-				createHeaderTemplate: function() {
+				createHeaderTemplate: function(pageNumber) {
 					var header = document.createElement('div');
-					header.innerHTML = 'HEADER'
+					header.innerHTML = 'HEADER ' + pageNumber;
 					
 					return header;
 				},
-				createFooterTemplate: function() {
+				createFooterTemplate: function(pageNumber) {
 					var footer = document.createElement('div');
-					footer.innerHTML = 'FOOTER'
+					footer.innerHTML = 'FOOTER ' + pageNumber;
 					
 					return footer;
 				},
