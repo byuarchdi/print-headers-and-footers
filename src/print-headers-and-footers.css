@@ -14,16 +14,3 @@
 	display: flex;
 	flex-direction: column;
 }
-
-@media print {
-	@page {
-		margin: 0;
-		size: letter portrait;
-		width: 8.5in;
-		height: 11in;
-	}
-	
-	html, body {
-		margin: 0;
-	}
-}

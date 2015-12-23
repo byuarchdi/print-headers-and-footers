@@ -14,6 +14,16 @@ var PrintHAF = (function() {
 	var createHeaderTemplate = function() {};
 	var createFooterTemplate = function() {};
 	
+	var insertPrintStyles = function(width, height) {
+		var style = document.createElement('style');
+		
+		var printQuery = document.createTextNode('@media print { @page { margin: 0; size: ' + width + 'px ' + height + 'px; } html, body { margin: 0; } }');
+		
+		style.appendChild(printQuery);
+		
+		document.body.appendChild(style);
+	};
+	
 	o.init = function(options) {	
 		if (options.size) {
 			
@@ -27,6 +37,8 @@ var PrintHAF = (function() {
 			options.width && (width = options.width);
 			options.height && (height = options.height);
 		}
+		
+		insertPrintStyles(width, height);
 		
 		options.marginTop && (marginTop = options.marginTop);
 		options.marginBottom && (marginBottom = options.marginBottom);
