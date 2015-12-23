@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<script src="../node_modules/css-regions-polyfill/bin/css-regions-polyfill.min.js"></script>
+		<script src="../src/print-headers-and-footers.js"></script>
+		<link rel="stylesheet" href="../src/print-headers-and-footers.css">
+	</head>
+	
+	<body>
+		<button onclick="PrintHAF.print()">Print</button>
+		<div id="print-container">
+			Lorem ipsum dolor sit amet, et vim purto quaestio, mea option labitur eu. Meis posse ei eam. In vis salutandi adversarium, ea accusam perfecto definitiones pri. At per ludus nemore, mea liber elitr rationibus ad, ne commune periculis philosophia mea. Mazim lobortis ad eum.
+			Qualisque appellantur vis te. Atqui admodum expetendis his ne. Diam detracto consequat te usu, libris malorum te nec, quo primis consetetur no. Eum altera definiebas id. Nec quot illum eu.
+			Sit scripta rationibus ut, vitae ceteros maluisset ad est. Alii quidam efficiantur quo te. Nibh maiestatis accommodare te ius, pri velit docendi id. No ius nostrum consequuntur, id fabellas principes eam, in has dolore ceteros facilisis.
+			Vel no elit sale delicata, id solet detraxit pro, id primis diceret has. Cu mutat philosophia his. Id fabellas accusamus cotidieque nec. Essent timeam te est.
+			Quo constituto mediocritatem et, numquam inimicus quo at. Quem fastidii liberavisse ne his, no lobortis efficiantur vituperatoribus nam, eu vel elitr omittantur necessitatibus. Eam ne sale habeo laboramus, reque detracto his ne, his ad paulo nostro repudiare. Mea ex dolore equidem persequeris, est scaevola phaedrum ei, ad magna sententiae vix. Te mel vitae facilis sententiae.
+		</div>
+			
+		<script>
+			PrintHAF.init({
+				domID: 'print-container',
+				size: 'letter',
+				marginTop: 48,
+				marginBottom: 48,
+				marginLeft: 48,
+				marginRight: 48,
+				createHeaderTemplate: function(pageNumber) {
+					var header = document.createElement('div');
+					header.innerHTML = 'HEADER ' + pageNumber;
+					
+					return header;
+				},
+				createFooterTemplate: function(pageNumber) {
+					var footer = document.createElement('div');
+					footer.innerHTML = 'FOOTER ' + pageNumber;
+					
+					return footer;
+				}
+			});
+		</script>
+	</body>
+
+</html>

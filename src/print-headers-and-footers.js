@@ -20,10 +20,10 @@ var PrintHAF = (function() {
 	var userAfter = function() {};
 	
 	o.init = function(options) {
-		var insertPrintStyles = function(width, height) {
+		var insertPrintStyles = function(width, height, domID) {
 			var style = document.createElement('style');
 			
-			var printQuery = document.createTextNode('@media print { @page { margin: 0; size: ' + width + 'px ' + height + 'px; } html, body { margin: 0; } }');
+			var printQuery = document.createTextNode('@media print { @page { margin: 0; size: ' + width + 'px ' + height + 'px; } html, body { margin: 0; visibility: hidden; } #region-container { visibility: visible !important; } }');
 			
 			style.appendChild(printQuery);
 			
@@ -66,7 +66,7 @@ var PrintHAF = (function() {
 			options.height && (height = options.height);
 		}
 		
-		insertPrintStyles(width, height);
+		insertPrintStyles(width, height, domID);
 		
 		options.marginTop && (marginTop = options.marginTop);
 		options.marginBottom && (marginBottom = options.marginBottom);
@@ -81,7 +81,9 @@ var PrintHAF = (function() {
 	};
 	
 	o.print = function() {
-		var regionContainer = document.createElement('div')
+		var regionContainer = document.createElement('div');
+		regionContainer.id = 'region-container';
+		
 		var printContainer = document.getElementById(domID);
 		
 		before(userBefore, printContainer, regionContainer);
@@ -94,13 +96,9 @@ var PrintHAF = (function() {
 	var before = function(userBefore, printContainer, regionContainer) {
 		userBefore();
 		
-		document.body.style.visibility = 'hidden';
-		
-		printContainer.style.visibility = 'visible';
-		
+		regionContainer.style.visibility = 'hidden';
 		regionContainer.style.position = 'absolute';
 		regionContainer.style.zIndex = '5000';
-		regionContainer.style.visibility = 'visible';
 		regionContainer.style.top = '0';
 		regionContainer.style.left = '0';
 		
@@ -207,8 +205,6 @@ var PrintHAF = (function() {
 	var after = function(printContainer, regionContainer, userAfter) {
 		regionContainer.parentNode.removeChild(regionContainer);
 		printContainer.classList.remove('haf-content');
-		
-		document.body.style.visibility = 'visible';
 		
 		userAfter();
 	};
