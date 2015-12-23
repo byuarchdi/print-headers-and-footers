@@ -142,16 +142,16 @@ Dicta deseruisse et qui, cu duo melius bonorum fabellas, ea omittam detracto def
 		<script>
 			PrintHAF.init({ //TODO should I allow any kind of units?
 				size: 'letter',
-				width: 0,
-				height: 0,
-				marginTop: 0,
+				//width: 0,
+				//height: 0,
+				marginTop: 48,
 				marginBottom: 0,
 				marginLeft: 0,
 				marginRight: 0,
-				headerTemplate: function() {
+				createHeaderTemplate: function() {
 					return '<div>HEADER</div>'
 				},
-				footerTemplate: function() {
+				createFooterTemplate: function() {
 					return '<div>FOOTER</div>'
 				}
 			});
