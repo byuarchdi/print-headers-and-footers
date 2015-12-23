@@ -8,10 +8,9 @@
 	</head>
 	
 	<body>
-		<div class="haf-main-container">
-			<button onclick="PrintHAF.print()">Print</button>
+		<button id="print-button" onclick="PrintHAF.print()">Print</button>
+		<div class="haf-print-container">
 			
-			<div class="haf-print-container">
 				Lorem ipsum dolor sit amet, iuvaret perfecto ex nec, cu vix tempor scriptorem. Mei eros saperet mentitum at, tale summo an usu, adhuc temporibus at his. Vis id vidit persius facilis. Vim te quando elaboraret, hinc atqui copiosae no vis. Idque alienum et nam, iriure maiorum mea ea. Quot reprimique scripserit vel at, mea assum tation intellegam in.
 
 Id mazim patrioque mel, ferri oratio diceret cu vix. Id autem accumsan has, illum apeirian vis id, ne vel nisl commune percipit. Ut dicta efficiendi eam. Te est unum aeque, an mucius maiorum deterruisset mea. Magna assum laoreet sea cu, pro dico splendide ad. Ut ius nominavi hendrerit, quo ullum ignota aliquando id.
@@ -208,7 +207,6 @@ Dicta deseruisse et qui, cu duo melius bonorum fabellas, ea omittam detracto def
 			Id mazim patrioque mel, ferri oratio diceret cu vix. Id autem accumsan has, illum apeirian vis id, ne vel nisl commune percipit. Ut dicta efficiendi eam. Te est unum aeque, an mucius maiorum deterruisset mea. Magna assum laoreet sea cu, pro dico splendide ad. Ut ius nominavi hendrerit, quo ullum ignota aliquando id.
 
 Dicta deseruisse et qui, cu duo melius bonorum fabellas, ea omittam detracto definiebas est. Ei eos stet nemore, at quem dissentiet reprehendunt pri, ea modus graecis ius. Cum id fuisset praesent mediocrem, eum ridens dolores apeirian cu. Vel cu exerci legimus, vel verear aperiam ut, vel possim platonem pertinacia ex.
-			</div>
 			
 		</div>
 		
@@ -235,10 +233,10 @@ Dicta deseruisse et qui, cu duo melius bonorum fabellas, ea omittam detracto def
 					return footer;
 				},
 				before: function() {
-					
+					document.getElementById('print-button').style.display = 'none';
 				},
 				after: function() {
-					
+					document.getElementById('print-button').style.display = 'block';
 				}
 			});
 		</script>

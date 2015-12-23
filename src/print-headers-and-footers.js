@@ -14,6 +14,9 @@ var PrintHAF = (function() {
 	var createHeaderTemplate = function() {};
 	var createFooterTemplate = function() {};
 	
+	var userBefore = function() {};
+	var userAfter = function() {};
+	
 	o.init = function(options) {
 		var insertPrintStyles = function(width, height) {
 			var style = document.createElement('style');
@@ -68,23 +71,26 @@ var PrintHAF = (function() {
 		
 		options.createHeaderTemplate && (createHeaderTemplate = options.createHeaderTemplate);
 		options.createFooterTemplate && (createFooterTemplate = options.createFooterTemplate);
+		
+		options.before && (userBefore = options.before);
+		options.after && (userAfter = options.after);
 	};
 	
 	o.print = function() {
 		var regionContainer = document.createElement('div')
-		var mainContainer = document.querySelector('.haf-main-container');
 		var printContainer = document.querySelector('.haf-print-container');
 		
-		before(mainContainer, regionContainer, printContainer);
+		before(userBefore, printContainer, regionContainer);
 		prepareRegions(regionContainer, createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height).then(function() {
 			window.print();
-			after(mainContainer, regionContainer, printContainer);
+			after(printContainer, regionContainer, userAfter);
 		});
 	};
 	
-	var before = function(mainContainer, regionContainer, printContainer) {
+	var before = function(userBefore, printContainer, regionContainer) {
+		userBefore();
+		
 		printContainer.classList.add('haf-content');
-		mainContainer.classList.add('haf-hide');
 		document.body.appendChild(regionContainer);
 	};
 	
@@ -184,10 +190,11 @@ var PrintHAF = (function() {
 		
 	};
 	
-	var after = function(mainContainer, regionContainer, printContainer) {
+	var after = function(printContainer, regionContainer, userAfter) {
 		regionContainer.parentNode.removeChild(regionContainer);
 		printContainer.classList.remove('haf-content');
-		mainContainer.classList.remove('haf-hide');
+		
+		userAfter();
 	};
 	
 	return o;
