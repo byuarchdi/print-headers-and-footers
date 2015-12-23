@@ -32,6 +32,27 @@ var PrintHAF = (function() {
 				height = 11 * 96;
 			}
 			
+			if (options.size === 'legal') {
+				width = 8.5 * 96;
+				height = 14 * 96;
+			}
+			
+			if (options.size === 'tabloid') {
+				width = 17 * 96;
+				height = 11 * 96;
+			}
+			
+			//TODO these don't seem to work well because of rounding errors
+			//if (options.size === 'A3') {
+			//	width = 11.69 * 96;
+			//	height = 16.53 * 96;
+			//}
+			
+			//if (options.size === 'A4') {
+			//	width = 8.27 * 96;
+			//	height = 11.69 * 96;
+			//}
+			
 		}
 		else {
 			options.width && (width = options.width);
