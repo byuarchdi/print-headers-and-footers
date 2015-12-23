@@ -41,14 +41,13 @@ var PrintHAF = (function() {
 		var headerTemplate = createHeaderTemplate();
 		var footerTemplate = createFooterTemplate();
 		var regionHeight = calculateRegionHeight(calculateRenderedHeight(headerTemplate), calculateRenderedHeight(footerTemplate), marginTop, marginBottom, height);
-		var regionWidth = calculateRegionWidth(marginLeft, marginRight, width);
 		
 		var regionContainer = document.createElement('div')
 		var mainContainer = document.querySelector('.haf-main-container');
 		var printContainer = document.querySelector('.haf-print-container');
 		
 		before(mainContainer, regionContainer, printContainer);
-		prepare(mainContainer, regionContainer, headerTemplate, footerTemplate, regionHeight, regionWidth, marginTop, marginBottom, marginLeft, marginRight, width, height).then(function() {
+		prepare(mainContainer, regionContainer, headerTemplate, footerTemplate, regionHeight, marginTop, marginBottom, marginLeft, marginRight, width, height).then(function() {
 			window.print();
 			after(mainContainer, regionContainer, printContainer);
 		});
@@ -73,19 +72,15 @@ var PrintHAF = (function() {
 		return height - (headerHeight + footerHeight + marginTop + marginBottom);	
 	};
 	
-	var calculateRegionWidth = function(marginLeft, marginRight, width) {
-		return width - (marginLeft + marginRight);
-	};
-	
 	var before = function(mainContainer, regionContainer, printContainer) {
 		printContainer.classList.add('haf-content');
 		mainContainer.classList.add('haf-hide');
 		document.body.appendChild(regionContainer);
 	};
 	
-	var prepare = function(mainContainer, regionContainer, headerTemplate, footerTemplate, regionHeight, regionWidth, marginTop, marginBottom, marginLeft, marginRight, width, height) {
+	var prepare = function(mainContainer, regionContainer, headerTemplate, footerTemplate, regionHeight, marginTop, marginBottom, marginLeft, marginRight, width, height) {
 		return new Promise(function(resolve, reject) {
-			var prepareForRendering = function(templateType, template, regionWidth, marginTop, marginBottom, marginLeft, marginRight) {
+			var prepareForRendering = function(templateType, template, marginTop, marginBottom, marginLeft, marginRight, width) {
 				
 				var element = document.createElement('div');
 				element.innerHTML = template;
@@ -104,22 +99,22 @@ var PrintHAF = (function() {
 					element.style.paddingBottom = marginBottom + 'px';
 				}
 				
-				element.style.width = regionWidth + 'px';
+				element.style.width = width + 'px';
 				element.style.paddingLeft = marginLeft + 'px';
 				element.style.paddingRight = marginRight + 'px';
 				
 				return element;
 			};
 			
-			prepareRegions(mainContainer, regionContainer, prepareForRendering('header', headerTemplate, regionWidth, marginTop, marginBottom, marginLeft, marginRight, width, height), prepareForRendering('footer', footerTemplate, regionWidth, marginTop, marginBottom, marginLeft, marginRight), regionHeight, regionWidth, width, height).then(function() {
+			prepareRegions(mainContainer, regionContainer, prepareForRendering('header', headerTemplate, marginTop, marginBottom, marginLeft, marginRight, width), prepareForRendering('footer', footerTemplate, marginTop, marginBottom, marginLeft, marginRight, width), regionHeight, width, height).then(function() {
 				resolve();
 			});
 		});
 	};
 	
-	var prepareRegions = function(mainContainer, regionContainer, header, footer, regionHeight, regionWidth, width, height) {
+	var prepareRegions = function(mainContainer, regionContainer, header, footer, regionHeight, width, height) {
 		return new Promise(function(resolve, reject) {
-			var createPage = function(header, footer, regionWidth, marginLeft, marginRight, width, height) {
+			var createPage = function(header, footer, marginLeft, marginRight, width, height) {
 				
 				var createNewPage = function(width, height) {
 					var page = document.createElement('div');
@@ -129,18 +124,18 @@ var PrintHAF = (function() {
 					page.style.boxSizing = 'border-box';
 					page.classList.add('haf-column');
 					
-					page.style.border = 'solid 1px black'
+					//page.style.border = 'solid 1px black'
 					
 					return page;
 				};
 				
-				var createRegion = function(regionHeight, regionWidth, marginLeft, marginRight) {
+				var createRegion = function(regionHeight, width, marginLeft, marginRight) {
 					
 					var region = document.createElement('div');
 					
 					region.style.boxSizing = 'border-box';
 					region.style.height = regionHeight + 'px';
-					region.style.width = regionWidth + 'px';
+					region.style.width = width + 'px';
 					region.style.paddingLeft = marginLeft + 'px';
 					region.style.paddingRight = marginRight + 'px';
 					
@@ -152,17 +147,17 @@ var PrintHAF = (function() {
 				var page = createNewPage(width, height);
 				
 				page.appendChild(header.cloneNode(true));
-				page.appendChild(createRegion(regionHeight, regionWidth, marginLeft, marginRight));
+				page.appendChild(createRegion(regionHeight, width, marginLeft, marginRight));
 				page.appendChild(footer.cloneNode(true));
 				
 				return page;
 			};
 			
-			var setupOversetListener = function(regionContainer, header, footer, regionWidth, marginLeft, marginRight, width, height) {
+			var setupOversetListener = function(regionContainer, header, footer, marginLeft, marginRight, width, height) {
 				document.getNamedFlow('haf-content').addEventListener('regionoversetchange', function(e) {
 					
 					if (e.target.overset) {
-						regionContainer.appendChild(createPage(header, footer, regionWidth, marginLeft, marginRight, width, height));
+						regionContainer.appendChild(createPage(header, footer, marginLeft, marginRight, width, height));
 						return;
 					}
 					
@@ -170,8 +165,8 @@ var PrintHAF = (function() {
 				});
 			};
 			
-			regionContainer.appendChild(createPage(header, footer, regionWidth, marginLeft, marginRight, width, height));
-			setupOversetListener(regionContainer, header, footer, regionWidth, marginLeft, marginRight, width, height);
+			regionContainer.appendChild(createPage(header, footer, marginLeft, marginRight, width, height));
+			setupOversetListener(regionContainer, header, footer, marginLeft, marginRight, width, height);
 		});
 		
 	};
