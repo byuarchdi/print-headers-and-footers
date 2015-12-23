@@ -1,4 +1,4 @@
-// One inch printed is 96 pixels in all browsers
+//TODO remember that one inch printed is 96 pixels in all browsers
 
 var PrintHAF = (function() {
 
@@ -14,17 +14,17 @@ var PrintHAF = (function() {
 	var createHeaderTemplate = function() {};
 	var createFooterTemplate = function() {};
 	
-	var insertPrintStyles = function(width, height) {
-		var style = document.createElement('style');
-		
-		var printQuery = document.createTextNode('@media print { @page { margin: 0; size: ' + width + 'px ' + height + 'px; } html, body { margin: 0; } }');
-		
-		style.appendChild(printQuery);
-		
-		document.body.appendChild(style);
-	};
-	
-	o.init = function(options) {	
+	o.init = function(options) {
+		var insertPrintStyles = function(width, height) {
+			var style = document.createElement('style');
+			
+			var printQuery = document.createTextNode('@media print { @page { margin: 0; size: ' + width + 'px ' + height + 'px; } html, body { margin: 0; } }');
+			
+			style.appendChild(printQuery);
+			
+			document.body.appendChild(style);
+		};
+			
 		if (options.size) {
 			
 			if (options.size === 'letter') {
@@ -71,38 +71,15 @@ var PrintHAF = (function() {
 	};
 	
 	o.print = function() {
-		var headerTemplate = createHeaderTemplate();
-		var footerTemplate = createFooterTemplate();
-		var regionHeight = calculateRegionHeight(calculateRenderedHeight(headerTemplate), calculateRenderedHeight(footerTemplate), marginTop, marginBottom, height);
-		
 		var regionContainer = document.createElement('div')
 		var mainContainer = document.querySelector('.haf-main-container');
 		var printContainer = document.querySelector('.haf-print-container');
 		
 		before(mainContainer, regionContainer, printContainer);
-		prepare(mainContainer, regionContainer, headerTemplate, footerTemplate, regionHeight, marginTop, marginBottom, marginLeft, marginRight, width, height).then(function() {
+		prepareRegions(regionContainer, createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height).then(function() {
 			window.print();
 			after(mainContainer, regionContainer, printContainer);
 		});
-	};
-	
-	var calculateRenderedHeight = function(template) {
-		//TODO Am I sure that this height will be the same as when the template is put into the region, position absolute versus display: block - removed from the flow versus in the flow
-		var element = document.createElement('div');
-		element.innerHTML = template;
-		
-		element.style.visibility = 'hidden';
-		element.style.position = 'absolute';
-		
-		document.body.appendChild(element);
-		var height = Math.max(element.clientHeight, element.scrollHeight, element.offsetHeight);
-		element.parentNode.removeChild(element);
-		
-		return height;
-	};
-	
-	var calculateRegionHeight = function(headerHeight, footerHeight, marginTop, marginBottom, height) {
-		return height - (headerHeight + footerHeight + marginTop + marginBottom);	
 	};
 	
 	var before = function(mainContainer, regionContainer, printContainer) {
@@ -111,43 +88,9 @@ var PrintHAF = (function() {
 		document.body.appendChild(regionContainer);
 	};
 	
-	var prepare = function(mainContainer, regionContainer, headerTemplate, footerTemplate, regionHeight, marginTop, marginBottom, marginLeft, marginRight, width, height) {
+	var prepareRegions = function(regionContainer, createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height) {
 		return new Promise(function(resolve, reject) {
-			var prepareForRendering = function(templateType, template, marginTop, marginBottom, marginLeft, marginRight, width) {
-				
-				var element = document.createElement('div');
-				element.innerHTML = template;
-				
-				element.style.boxSizing = 'border-box';
-				
-				document.body.appendChild(element);
-				element.style.height = Math.max(element.clientHeight, element.scrollHeight, element.offsetHeight); //TODO Without this line, why is the height of the template a decimal pixel value? Figure out how to fix that
-				element.parentNode.removeChild(element);
-				
-				if (templateType === 'header') {
-					element.style.paddingTop = marginTop + 'px';
-				}
-				
-				if (templateType === 'footer') {
-					element.style.paddingBottom = marginBottom + 'px';
-				}
-				
-				element.style.width = width + 'px';
-				element.style.paddingLeft = marginLeft + 'px';
-				element.style.paddingRight = marginRight + 'px';
-				
-				return element;
-			};
-			
-			prepareRegions(mainContainer, regionContainer, prepareForRendering('header', headerTemplate, marginTop, marginBottom, marginLeft, marginRight, width), prepareForRendering('footer', footerTemplate, marginTop, marginBottom, marginLeft, marginRight, width), regionHeight, width, height).then(function() {
-				resolve();
-			});
-		});
-	};
-	
-	var prepareRegions = function(mainContainer, regionContainer, header, footer, regionHeight, width, height) {
-		return new Promise(function(resolve, reject) {
-			var createPage = function(header, footer, marginLeft, marginRight, width, height) {
+			var createPage = function(createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height) {
 				
 				var createNewPage = function(width, height) {
 					var page = document.createElement('div');
@@ -155,14 +98,46 @@ var PrintHAF = (function() {
 					page.style.width = width + 'px';
 					page.style.height = height + 'px';
 					page.style.boxSizing = 'border-box';
-					page.classList.add('haf-column');
+					page.style.display = 'flex';
+					page.style.flexDirection = 'column';
 					
 					//page.style.border = 'solid 1px black'
 					
 					return page;
 				};
 				
-				var createRegion = function(regionHeight, width, marginLeft, marginRight) {
+				var prepareTemplate = function(templateType, templateCreator, marginTop, marginBottom, marginLeft, marginRight, width) {
+					
+					var element = templateCreator();
+					
+					element.style.boxSizing = 'border-box';
+					
+					document.body.appendChild(element);
+					element.style.height = Math.max(element.clientHeight, element.scrollHeight, element.offsetHeight) + 'px'; //TODO Without this line, why is the height of the template a decimal pixel value? Figure out how to fix that
+					element.parentNode.removeChild(element);
+					
+					if (templateType === 'header') {
+						element.style.paddingTop = marginTop + 'px';
+					}
+					
+					if (templateType === 'footer') {
+						element.style.paddingBottom = marginBottom + 'px';
+					}
+					
+					element.style.width = width + 'px';
+					element.style.paddingLeft = marginLeft + 'px';
+					element.style.paddingRight = marginRight + 'px';
+					
+					return element;
+				};
+				
+				var createRegion = function(preparedHeader, preparedFooter, width, marginLeft, marginRight) {
+					
+					var calculateRegionHeight = function(headerHeight, footerHeight, marginTop, marginBottom, height) {
+						return height - (headerHeight + footerHeight + marginTop + marginBottom);	
+					};
+					
+					var regionHeight = calculateRegionHeight(+preparedHeader.style.height.slice(0, -2), +preparedFooter.style.height.slice(0, -2), marginTop, marginBottom, height);
 					
 					var region = document.createElement('div');
 					
@@ -178,19 +153,21 @@ var PrintHAF = (function() {
 				};
 				
 				var page = createNewPage(width, height);
+				var preparedHeader = prepareTemplate('header', createHeaderTemplate, marginTop, marginBottom, marginLeft, marginRight, width);
+				var preparedFooter = prepareTemplate('footer', createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width);
 				
-				page.appendChild(header.cloneNode(true));
-				page.appendChild(createRegion(regionHeight, width, marginLeft, marginRight));
-				page.appendChild(footer.cloneNode(true));
+				page.appendChild(preparedHeader);
+				page.appendChild(createRegion(preparedHeader, preparedFooter, width, marginLeft, marginRight));
+				page.appendChild(preparedFooter);
 				
 				return page;
 			};
 			
-			var setupOversetListener = function(regionContainer, header, footer, marginLeft, marginRight, width, height) {
+			var setupOversetListener = function(regionContainer, createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height) {
 				document.getNamedFlow('haf-content').addEventListener('regionoversetchange', function(e) {
 					
 					if (e.target.overset) {
-						regionContainer.appendChild(createPage(header, footer, marginLeft, marginRight, width, height));
+						regionContainer.appendChild(createPage(createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height));
 						return;
 					}
 					
@@ -198,8 +175,8 @@ var PrintHAF = (function() {
 				});
 			};
 			
-			regionContainer.appendChild(createPage(header, footer, marginLeft, marginRight, width, height));
-			setupOversetListener(regionContainer, header, footer, marginLeft, marginRight, width, height);
+			regionContainer.appendChild(createPage(createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height));
+			setupOversetListener(regionContainer, createHeaderTemplate, createFooterTemplate, marginTop, marginBottom, marginLeft, marginRight, width, height);
 		});
 		
 	};
