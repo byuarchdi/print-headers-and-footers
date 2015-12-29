@@ -15,7 +15,17 @@ Include the necessary scripts and stylesheet:
 
 ## Usage
 
-The library is accessed through the global PrintHAF object. You must initialize the library before printing:
+To start things off, put the content that you want printed inside of an element with a unique id. When printing, all content not inside of this element will be hidden momentarily until printing is complete:
+
+    <body>
+    	<!--a bunch of html junk-->
+    	<div id="print-container">
+    		<!--Amazing html to print-->
+    	</div>
+    	<!--more html junk-->
+    </body>
+
+The library must then be initialized through the global PrintHAF object. You MUST initialize the library before printing:
 
     PrintHAF.init({
 				domID: 'print-container', // The id of the HTML element that contains the content to be printed
@@ -49,7 +59,9 @@ The library is accessed through the global PrintHAF object. You must initialize 
 When you are ready to print, use the following:
 
     PrintHAF.print()
-			
+	
+Remember that you cannot print with ctrl+p or window.print(), you MUST call PrintHAF.print.
+		
 ## Things to Consider
 * All units entered in initialization should be in pixels
 * Currently, all browsers should treat 96 pixels as 1 inch
@@ -57,6 +69,7 @@ When you are ready to print, use the following:
     * That id is the domID in PrintHAF.init
 * Complex content might not flow properly from page to page (especially columnized content)
    * Please feel free to open issues with a repeatable example
+* You must call PrintHAF.print to start printing
 
 ## Compatibility
 There is minimal testing right now. The project is designed for and manually tested on Chrome, but should work well in other major browsers.
