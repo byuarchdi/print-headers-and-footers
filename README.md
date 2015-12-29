@@ -1,6 +1,6 @@
 # Print Headers and Footers
 
-This project was created to fix the problem of printing headers and footers in Chrome. Right now there is a bug in Chrome that does not allow elements with fixed positioning to repeat when printed, thus headers and footers are difficult to print. You can check the status of the bug [here](https://code.google.com/p/chromium/issues/detail?id=303728).
+This project was created to fix the problem of printing headers and footers in Chrome. Currently there is a bug in Chrome that does not allow elements with fixed positioning to repeat when printed, thus printing headers and footers is difficult to implement. You can check the status of the bug [here](https://code.google.com/p/chromium/issues/detail?id=303728).
 
 ## Installation and setup
 Things will be easier if you use NPM. Clone the repository and run the following command to obtain all dependencies:
@@ -70,6 +70,7 @@ Remember that you cannot print with ctrl+p or window.print(), you MUST call Prin
 * Complex content might not flow properly from page to page (especially columnized content)
    * Please feel free to open issues with a repeatable example
 * You must call PrintHAF.print to start printing
+* Pull requests are encouraged! Let's make this thing great together
 
 ## Compatibility
 There is minimal testing right now. The project is designed for and manually tested on Chrome, but should work well in other major browsers.
