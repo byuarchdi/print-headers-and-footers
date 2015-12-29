@@ -61,6 +61,10 @@ When you are ready to print, use the following:
     PrintHAF.print()
 	
 Remember that you cannot print with ctrl+p or window.print(), you MUST call PrintHAF.print.
+
+If you have content that you want to keep together even when a natural page break is encountered, use the following CSS rule:
+    
+    break-inside: avoid;
 		
 ## Things to Consider
 * All units entered in initialization should be in pixels
