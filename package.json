@@ -1,6 +1,7 @@
 {
   "name": "print-headers-and-footers",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "main": "src/print-headers-and-footers.js",
   "description": "Allows repeating headers and footers to be printed in browsers",
   "scripts": {},
   "repository": {
