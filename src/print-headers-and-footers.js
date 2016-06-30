@@ -1,9 +1,17 @@
 //TODO remember that one inch printed is 96 pixels in all browsers
 
-var PrintHAF = (function() {
-
-	var o = {};
-
+(function (root, factory) {
+	if (typeof define === 'function' && define.amd) {
+		// AMD. Register as an anonymous module.
+		define(['exports'], factory);
+	} else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
+		// CommonJS
+		factory(exports);
+	} else {
+		// Browser globals
+		factory(root.PrintHAF = {});
+	}
+}(this, function (exports) {
 	var domID = '';
 
 	var width = 0;
@@ -19,7 +27,7 @@ var PrintHAF = (function() {
 	var userBefore = function() {};
 	var userAfter = function() {};
 	
-	o.init = function(options) {
+	exports.init = function(options) {
 		var insertPrintStyles = function(width, height, domID) {
 			var style = document.createElement('style');
 			
@@ -80,7 +88,7 @@ var PrintHAF = (function() {
 		options.after && (userAfter = options.after);
 	};
 	
-	o.print = function() {
+	exports.print = function() {
 		var regionContainer = document.createElement('div');
 		regionContainer.id = 'region-container';
 		
@@ -152,7 +160,7 @@ var PrintHAF = (function() {
 				var createRegion = function(preparedHeader, preparedFooter, width, marginLeft, marginRight) {
 					
 					var calculateRegionHeight = function(height, headerHeight, footerHeight) {
-						return height - (headerHeight + footerHeight);	
+						return height - (headerHeight + footerHeight);
 					};
 					
 					var regionHeight = calculateRegionHeight(height, +preparedHeader.style.height.slice(0, -2), +preparedFooter.style.height.slice(0, -2));
@@ -208,7 +216,4 @@ var PrintHAF = (function() {
 		
 		userAfter();
 	};
-	
-	return o;
-	
-})();
+}));
